@@ -40,7 +40,13 @@ def login():
         return
 
     # print(LANG.AUTH_LOGIN_CODE.format(green(API.key.userCode)))
-    print(LANG.AUTH_NEXT_STEP.format(green("http://" + API.key.verificationUrl + "/" + API.key.userCode), yellow(displayTime(API.key.authCheckTimeout))))
+    print(
+        LANG.AUTH_NEXT_STEP.format(
+            green(f"http://{API.key.verificationUrl}/{API.key.userCode}"),
+            yellow(displayTime(API.key.authCheckTimeout)),
+        )
+    )
+
     print(LANG.AUTH_WAITING)
     loginByWeb()
     return
@@ -119,13 +125,16 @@ def changeSettings():
     CONF.saveAlbumInfo = Printf.enter(LANG.CHANGE_SAVE_ALBUM_INFO) == '1'
     CONF.showTrackInfo = Printf.enter(LANG.CHANGE_SHOW_TRACKINFO) == '1'
     CONF.usePlaylistFolder = Printf.enter(LANG.SETTING_USE_PLAYLIST_FOLDER + "('0'-No,'1'-Yes):") == '1'
-    CONF.language = Printf.enter(LANG.CHANGE_LANGUAGE + "(" + getLangChoicePrint() + "):")
+    CONF.language = Printf.enter(
+        f"{LANG.CHANGE_LANGUAGE}({getLangChoicePrint()}):"
+    )
+
     CONF.albumFolderFormat = Printf.enterFormat(
         LANG.CHANGE_ALBUM_FOLDER_FORMAT, CONF.albumFolderFormat, Settings.getDefaultAlbumFolderFormat())
     CONF.trackFileFormat = Printf.enterFormat(LANG.CHANGE_TRACK_FILE_FORMAT,
                                               CONF.trackFileFormat, Settings.getDefaultTrackFileFormat())
     CONF.videoFileFormat = Printf.enterFormat(LANG.CHANGE_VIDEO_FILE_FORMAT,
-                                              CONF.videoFileFormat, Settings.getDefaultVideoFileFormat())                                          
+                                              CONF.videoFileFormat, Settings.getDefaultVideoFileFormat())
     CONF.addLyrics = Printf.enter(LANG.CHANGE_ADD_LYRICS) == '1'
     CONF.lyricsServerProxy = Printf.enterFormat(
         LANG.CHANGE_LYRICS_SERVER_PROXY, CONF.lyricsServerProxy, CONF.lyricsServerProxy)
@@ -174,7 +183,7 @@ def mainCommand():
         return
 
     if link is not None:
-        Printf.info(LANG.SETTING_DOWNLOAD_PATH + ':' + CONF.downloadPath)
+        Printf.info(f'{LANG.SETTING_DOWNLOAD_PATH}:{CONF.downloadPath}')
         start(TOKEN, CONF, link)
 
 
@@ -187,7 +196,6 @@ def debug():
     API.getMix("01453963b7dbd41c8b82ccb678d127")
     # msg, result = API.search('Mojito', Type.Null, 0, 10)
     msg, lyric = API.getLyrics('144909909')
-    pass
 
 
 def main():
@@ -204,7 +212,7 @@ def main():
     if not isNull(onlineVer):
         icmp = cmpVersion(onlineVer, VERSION)
         if icmp > 0:
-            Printf.info(LANG.PRINT_LATEST_VERSION + ' ' + onlineVer)
+            Printf.info(f'{LANG.PRINT_LATEST_VERSION} {onlineVer}')
 
     while True:
         Printf.choices()

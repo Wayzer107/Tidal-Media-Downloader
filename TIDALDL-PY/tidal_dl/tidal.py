@@ -73,16 +73,17 @@ class TidalAPI(object):
         return json_object
 
     def __get__(self, path, params={}, retry=3, urlpre=__URL_PRE__):
-        # deprecate the sessionId
-        # header = {'X-Tidal-SessionId': self.key.sessionId}T
-        header = {}
-        if not isNull(self.key.accessToken):
-            header = {'authorization': 'Bearer {}'.format(self.key.accessToken)}
+        header = (
+            {}
+            if isNull(self.key.accessToken)
+            else {'authorization': f'Bearer {self.key.accessToken}'}
+        )
+
         params['countryCode'] = self.key.countryCode
 
         result = None
         respond = None
-        for index in range(0, retry):
+        for _ in range(retry):
             try:
                 respond = requests.get(urlpre + path, headers=header, params=params)
                 result = self.__toJson__(respond.text)
@@ -91,13 +92,12 @@ class TidalAPI(object):
                 continue
 
         if result is None:
-            return "Get operation err!" + respond.text, None
+            return f"Get operation err!{respond.text}", None
         if 'status' in result:
             if 'userMessage' in result and result['userMessage'] is not None:
                 return result['userMessage'], None
-            else:
-                logging.error("[Get operation err] path=" + path + ". respon=" + respond.text)
-                return "Get operation err!", None
+            logging.error(f"[Get operation err] path={path}. respon={respond.text}")
+            return "Get operation err!", None
         return None, result
 
     def __getItems__(self, path, params={}, retry=3):
@@ -174,7 +174,7 @@ class TidalAPI(object):
             'client_id': self.apiKey['clientId'],
             'scope': 'r_usr+w_usr+w_sub'
         }
-        e, result = self.__post__(__AUTH_URL__ + '/device_authorization', data)
+        e, result = self.__post__(f'{__AUTH_URL__}/device_authorization', data)
         if e is not None:
             return str(e), False
 
@@ -195,7 +195,12 @@ class TidalAPI(object):
             'grant_type': 'urn:ietf:params:oauth:grant-type:device_code',
             'scope': 'r_usr+w_usr+w_sub'
         }
-        e, result = self.__post__(__AUTH_URL__ + '/token', data, (self.apiKey['clientId'], self.apiKey['clientSecret']))
+        e, result = self.__post__(
+            f'{__AUTH_URL__}/token',
+            data,
+            (self.apiKey['clientId'], self.apiKey['clientSecret']),
+        )
+
         if e is not None:
             return str(e), False
 
@@ -214,7 +219,7 @@ class TidalAPI(object):
         return None, True
 
     def verifyAccessToken(self, accessToken):
-        header = {'authorization': 'Bearer {}'.format(accessToken)}
+        header = {'authorization': f'Bearer {accessToken}'}
         result = requests.get('https://api.tidal.com/v1/sessions', headers=header).json()
         if 'status' in result and result['status'] != 200:
             return "Login failed!", False
@@ -228,7 +233,12 @@ class TidalAPI(object):
             'scope': 'r_usr+w_usr+w_sub'
         }
 
-        e, result = self.__post__(__AUTH_URL__ + '/token', data, (self.apiKey['clientId'], self.apiKey['clientSecret']))
+        e, result = self.__post__(
+            f'{__AUTH_URL__}/token',
+            data,
+            (self.apiKey['clientId'], self.apiKey['clientSecret']),
+        )
+
         if e is not None:
             return str(e), False
 
@@ -244,14 +254,13 @@ class TidalAPI(object):
         return None, True
 
     def loginByAccessToken(self, accessToken, userid=None):
-        header = {'authorization': 'Bearer {}'.format(accessToken)}
+        header = {'authorization': f'Bearer {accessToken}'}
         result = requests.get('https://api.tidal.com/v1/sessions', headers=header).json()
         if 'status' in result and result['status'] != 200:
             return "Login failed!", False
 
-        if not isNull(userid):
-            if str(result['userId']) != str(userid):
-                return "User mismatch! Please use your own accesstoken.", False
+        if not isNull(userid) and str(result['userId']) != str(userid):
+            return "User mismatch! Please use your own accesstoken.", False
 
         self.key.userId = result['userId']
         self.key.countryCode = result['countryCode']
@@ -259,23 +268,23 @@ class TidalAPI(object):
         return None, True
 
     def getAlbum(self, id):
-        msg, data = self.__get__('albums/' + str(id))
+        msg, data = self.__get__(f'albums/{str(id)}')
         return msg, dictToModel(data, Album())
 
     def getPlaylist(self, id):
-        msg, data = self.__get__('playlists/' + str(id))
+        msg, data = self.__get__(f'playlists/{str(id)}')
         return msg, dictToModel(data, Playlist())
 
     def getArtist(self, id):
-        msg, data = self.__get__('artists/' + str(id))
+        msg, data = self.__get__(f'artists/{str(id)}')
         return msg, dictToModel(data, Artist())
 
     def getTrack(self, id):
-        msg, data = self.__get__('tracks/' + str(id))
+        msg, data = self.__get__(f'tracks/{str(id)}')
         return msg, dictToModel(data, Track())
 
     def getVideo(self, id):
-        msg, data = self.__get__('videos/' + str(id))
+        msg, data = self.__get__(f'videos/{str(id)}')
         return msg, dictToModel(data, Video())
 
     def getMix(self, id):
@@ -310,16 +319,19 @@ class TidalAPI(object):
         return msg, dictToModel(data, SearchResult())
 
     def getLyrics(self, id):
-        msg, data = self.__get__('tracks/' + str(id) + "/lyrics", urlpre='https://listen.tidal.com/v1/')
+        msg, data = self.__get__(
+            f'tracks/{str(id)}/lyrics', urlpre='https://listen.tidal.com/v1/'
+        )
+
         return msg, dictToModel(data, Lyrics())
 
     def getItems(self, id, type: Type):
         if type == Type.Playlist:
-            msg, data = self.__getItems__('playlists/' + str(id) + "/items")
+            msg, data = self.__getItems__(f'playlists/{str(id)}/items')
         elif type == Type.Album:
-            msg, data = self.__getItems__('albums/' + str(id) + "/items")
+            msg, data = self.__getItems__(f'albums/{str(id)}/items')
         elif type == Type.Mix:
-            msg, data = self.__getItems__('mixes/' + str(id) + '/items')
+            msg, data = self.__getItems__(f'mixes/{str(id)}/items')
         else:
             return "invalid Type!", None, None
         if msg is not None:
@@ -334,25 +346,25 @@ class TidalAPI(object):
         return msg, tracks, videos
 
     def getArtistAlbums(self, id, includeEP=False):
-        albums = []
-        msg, data = self.__getItems__('artists/' + str(id) + "/albums")
+        msg, data = self.__getItems__(f'artists/{str(id)}/albums')
         if msg is not None:
             return msg, None
-        for item in data:
-            albums.append(dictToModel(item, Album()))
+        albums = [dictToModel(item, Album()) for item in data]
         if includeEP == False:
             return None, albums
-        msg, data = self.__getItems__('artists/' + str(id) + "/albums", {"filter": "EPSANDSINGLES"})
+        msg, data = self.__getItems__(
+            f'artists/{str(id)}/albums', {"filter": "EPSANDSINGLES"}
+        )
+
         if msg is not None:
             return msg, None
-        for item in data:
-            albums.append(dictToModel(item, Album()))
+        albums.extend(dictToModel(item, Album()) for item in data)
         return None, albums
 
     def getStreamUrl(self, id, quality: AudioQuality):
         squality = self.__getQualityString__(quality)
         paras = {"audioquality": squality, "playbackmode": "STREAM", "assetpresentation": "FULL"}
-        msg, data = self.__get__('tracks/' + str(id) + "/playbackinfopostpaywall", paras)
+        msg, data = self.__get__(f'tracks/{str(id)}/playbackinfopostpaywall', paras)
         if msg is not None:
             return msg, None
         resp = dictToModel(data, __StreamRespond__())
@@ -370,7 +382,7 @@ class TidalAPI(object):
 
     def getVideoStreamUrl(self, id, quality: VideoQuality):
         paras = {"videoquality": "HIGH", "playbackmode": "STREAM", "assetpresentation": "FULL"}
-        msg, data = self.__get__('videos/' + str(id) + "/playbackinfopostpaywall", paras)
+        msg, data = self.__get__(f'videos/{str(id)}/playbackinfopostpaywall', paras)
         if msg is not None:
             return msg, None
         resp = dictToModel(data, __StreamRespond__())
@@ -390,7 +402,7 @@ class TidalAPI(object):
         return "Can't get the streamUrl, type is " + resp.manifestMimeType, None
 
     def getTrackContributors(self, id):
-        msg, data = self.__get__('tracks/' + str(id) + "/contributors")
+        msg, data = self.__get__(f'tracks/{str(id)}/contributors')
         return msg, data
 
     def getCoverUrl(self, sid, width="320", height="320"):
@@ -407,25 +419,22 @@ class TidalAPI(object):
             return ''
 
     def getArtistsName(self, artists=[]):
-        array = []
-        for item in artists:
-            array.append(item.name)
+        array = [item.name for item in artists]
         return " / ".join(array)
 
     def getFlag(self, data, type: Type, short=True, separator=" / "):
         master = False
         atmos = False
         explicit = False
-        if type == Type.Album or type == Type.Track:
+        if type in [Type.Album, Type.Track]:
             if data.audioQuality == "HI_RES":
                 master = True
             if type == Type.Album and "DOLBY_ATMOS" in data.audioModes:
                 atmos = True
             if data.explicit is True:
                 explicit = True
-        if type == Type.Video:
-            if data.explicit is True:
-                explicit = True
+        if type == Type.Video and data.explicit is True:
+            explicit = True
         if not master and not atmos and not explicit:
             return ""
         array = []
@@ -460,7 +469,7 @@ class TidalAPI(object):
         if etype == Type.Null:
             return etype, sid
 
-        sid = stringHelper.getSub(url, etype.name.lower() + '/', '/')
+        sid = stringHelper.getSub(url, f'{etype.name.lower()}/', '/')
         return etype, sid
 
     def getByString(self, string):
@@ -473,17 +482,17 @@ class TidalAPI(object):
         if isNull(sid):
             sid = string
 
-        if obj is None and (etype == Type.Null or etype == Type.Album):
+        if obj is None and etype in [Type.Null, Type.Album]:
             msg, obj = self.getAlbum(sid)
-        if obj is None and (etype == Type.Null or etype == Type.Artist):
+        if obj is None and etype in [Type.Null, Type.Artist]:
             msg, obj = self.getArtist(sid)
-        if obj is None and (etype == Type.Null or etype == Type.Track):
+        if obj is None and etype in [Type.Null, Type.Track]:
             msg, obj = self.getTrack(sid)
-        if obj is None and (etype == Type.Null or etype == Type.Video):
+        if obj is None and etype in [Type.Null, Type.Video]:
             msg, obj = self.getVideo(sid)
-        if obj is None and (etype == Type.Null or etype == Type.Playlist):
+        if obj is None and etype in [Type.Null, Type.Playlist]:
             msg, obj = self.getPlaylist(sid)
-        if obj is None and (etype == Type.Null or etype == Type.Mix):
+        if obj is None and etype in [Type.Null, Type.Mix]:
             msg, obj = self.getMix(sid)
 
         if obj is None or etype != Type.Null:

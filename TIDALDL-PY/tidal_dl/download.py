@@ -32,18 +32,18 @@ def __loadAPI__(user):
 
 
 def __downloadCover__(conf, album):
-    if album == None:
+    if album is None:
         return
-    path = getAlbumPath(conf, album) + '/cover.jpg'
+    path = f'{getAlbumPath(conf, album)}/cover.jpg'
     url = API.getCoverUrl(album.cover, "1280", "1280")
     if url is not None:
         aigpy.net.downloadFile(url, path)
 
 
 def __saveAlbumInfo__(conf, album, tracks):
-    if album == None:
+    if album is None:
         return
-    path = getAlbumPath(conf, album) + '/AlbumInfo.txt'
+    path = f'{getAlbumPath(conf, album)}/AlbumInfo.txt'
 
     infos = ""
     infos += "[ID]          %s\n" % (str(album.id))
@@ -54,11 +54,7 @@ def __saveAlbumInfo__(conf, album, tracks):
     infos += "[Duration]    %s\n" % (str(album.duration))
     infos += '\n'
 
-    i = 0
-    while True:
-        if i >= int(album.numberOfVolumes):
-            break
-        i = i + 1
+    for i in range(1, int(album.numberOfVolumes) + 1):
         infos += "===========CD %d=============\n" % i
         for item in tracks:
             if item.volumeNumber != i:
@@ -167,7 +163,7 @@ def start(user, conf, string):
 
         msg, etype, obj = API.getByString(item)
         if etype == Type.Null or not aigpy.string.isNull(msg):
-            Printf.err(msg + " [" + item + "]")
+            Printf.err(f"{msg} [{item}]")
             return
 
         if etype == Type.Album:

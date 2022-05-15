@@ -84,10 +84,7 @@ def getItems():
 
 
 def getLimitIndexs():
-    array = []
-    for i in range(len(__API_KEYS__['keys'])):
-        array.append(str(i))
-    return array
+    return [str(i) for i in range(len(__API_KEYS__['keys']))]
 
 
 def getVersion():

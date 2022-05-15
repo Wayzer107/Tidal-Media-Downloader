@@ -40,8 +40,8 @@ logging.basicConfig(filename=getLogPath(),
 
 
 def __getIndexStr__(index):
-    pre = "0"
     if index < 10:
+        pre = "0"
         return pre + str(index)
     if index < 99:
         return str(index)
@@ -58,8 +58,7 @@ def __getExtension__(url):
 
 def __secondsToTimeStr__(seconds):
     time_string = str(datetime.timedelta(seconds=seconds))
-    if time_string.startswith('0:'):
-        time_string = time_string[2:]
+    time_string = time_string.removeprefix('0:')
     return time_string
 
 
@@ -67,11 +66,12 @@ def __parseContributors__(roleType, Contributors):
     if Contributors is None:
         return None
     try:
-        ret = []
-        for item in Contributors['items']:
-            if item['role'] == roleType:
-                ret.append(item['name'])
-        return ret
+        return [
+            item['name']
+            for item in Contributors['items']
+            if item['role'] == roleType
+        ]
+
     except:
         return None
 
@@ -98,7 +98,7 @@ def stripPathParts(stripped_path, separator):
     stripped_path = stripped_path.split(separator)
     for stripped_path_part in stripped_path:
         result += stripped_path_part.strip()
-        if not stripped_path.index(stripped_path_part) == len(stripped_path) - 1:
+        if stripped_path.index(stripped_path_part) != len(stripped_path) - 1:
             result += separator
     return result.strip()
 
@@ -115,9 +115,9 @@ def getArtistsName(artists):
 
 # "{ArtistName}/{Flag} [{AlbumID}] [{AlbumYear}] {AlbumTitle}"
 def getAlbumPath(conf: Settings, album):
-    base = conf.downloadPath + '/'
+    base = f'{conf.downloadPath}/'
     if conf.addTypeFolder:
-        base = base + 'Album/'
+        base = f'{base}Album/'
     artist = aigpy.path.replaceLimitChar(getArtistsName(album.artists), '-')
     albumArtistName = aigpy.path.replaceLimitChar(album.artist.name, '-') if album.artist is not None else ""
     # album folder pre: [ME][ID]
@@ -127,7 +127,7 @@ def getAlbumPath(conf: Settings, album):
     if not conf.addExplicitTag:
         flag = flag.replace("E", "")
     if not aigpy.string.isNull(flag):
-        flag = "[" + flag + "] "
+        flag = f"[{flag}] "
 
     sid = str(album.id)
     # album and addyear
@@ -160,9 +160,9 @@ def getAlbumPath(conf: Settings, album):
 
 def getPlaylistPath(conf: Settings, playlist):
     # outputdir/Playlist/
-    base = conf.downloadPath + '/'
+    base = f'{conf.downloadPath}/'
     if conf.addTypeFolder:
-        base = base + 'Playlist/'
+        base = f'{base}Playlist/'
     # name
     name = aigpy.path.replaceLimitChar(playlist.title, '-')
     return base + name + '/'
@@ -171,9 +171,9 @@ def getPlaylistPath(conf: Settings, playlist):
 def getTrackPath(conf: Settings, track, stream, album=None, playlist=None):
     base = './'
     if album is not None:
-        base = getAlbumPath(conf, album) + '/'
+        base = f'{getAlbumPath(conf, album)}/'
         if album.numberOfVolumes > 1:
-            base += 'CD' + str(track.volumeNumber) + '/'
+            base += f'CD{str(track.volumeNumber)}/'
     if playlist is not None and conf.usePlaylistFolder:
         base = getPlaylistPath(conf, playlist)
     # number
@@ -186,7 +186,7 @@ def getTrackPath(conf: Settings, track, stream, album=None, playlist=None):
     # title
     title = track.title
     if not aigpy.string.isNull(track.version):
-        title += ' (' + track.version + ')'
+        title += f' ({track.version})'
     title = aigpy.path.replaceLimitChar(title, '-')
     # get explicit
     explicit = "(Explicit)" if conf.addExplicitTag and track.explicit else ''
@@ -221,9 +221,9 @@ def getVideoPath(conf, video, album=None, playlist=None):
     elif playlist is not None and conf.usePlaylistFolder:
         base = getPlaylistPath(conf, playlist)
     else:
-        base = conf.downloadPath + '/'
+        base = f'{conf.downloadPath}/'
         if conf.addTypeFolder:
-            base = base + 'Video/'
+            base = f'{base}Video/'
 
     # get number
     number = __getIndexStr__(video.trackNumber)
@@ -272,7 +272,7 @@ def setMetaData(track, album, filepath, contributors, lyrics):
     obj.album = track.album.title
     obj.title = track.title
     if not aigpy.string.isNull(track.version):
-        obj.title += ' (' + track.version + ')'
+        obj.title += f' ({track.version})'
 
     obj.artist = list(map(lambda artist: artist.name, track.artists))  # __getArtists__(track.artists)
     obj.copyright = track.copyRight
@@ -342,22 +342,18 @@ def setCurVideoQuality(text):
     Settings.save(CONF)
 
 def skip(path, url):
-    if CONF.checkExist and isNeedDownload(path, url) is False:
-        return True
-    return False
+    return bool(CONF.checkExist and isNeedDownload(path, url) is False)
 
 
 def convert(srcPath, stream):
-    if CONF.onlyM4a:
-        return convertToM4a(srcPath, stream.codec)
-    return srcPath
+    return convertToM4a(srcPath, stream.codec) if CONF.onlyM4a else srcPath
 
 
 def downloadTrack(track: Track, album=None, playlist=None, userProgress=None, partSize=1048576):
     try:
         msg, stream = API.getStreamUrl(track.id, CONF.audioQuality)
         if not aigpy.string.isNull(msg) or stream is None:
-            Printf.err(track.title + "." + msg)
+            Printf.err(f"{track.title}.{msg}")
             return False, msg
         if CONF.showTrackInfo:
             Printf.track(track, stream)
@@ -367,21 +363,26 @@ def downloadTrack(track: Track, album=None, playlist=None, userProgress=None, pa
 
         # check exist
         if skip(path, stream.url):
-            Printf.success(aigpy.path.getFileName(path) + " (skip:already exists!)")
+            Printf.success(f"{aigpy.path.getFileName(path)} (skip:already exists!)")
             return True, ""
 
         # download
-        logging.info("[DL Track] name=" + aigpy.path.getFileName(path) + "\nurl=" + stream.url)
-        tool = aigpy.download.DownloadTool(path + '.part', [stream.url])
+        logging.info(
+            f"[DL Track] name={aigpy.path.getFileName(path)}"
+            + "\nurl="
+            + stream.url
+        )
+
+        tool = aigpy.download.DownloadTool(f'{path}.part', [stream.url])
         tool.setUserProgress(userProgress)
         tool.setPartSize(partSize)
         check, err = tool.start(CONF.showProgress)
         if not check:
-            Printf.err("Download failed! " + aigpy.path.getFileName(path) + ' (' + str(err) + ')')
+            Printf.err(f"Download failed! {aigpy.path.getFileName(path)} ({str(err)})")
             return False, str(err)
 
         # encrypted -> decrypt and remove encrypted file
-        encrypted(stream, path + '.part', path)
+        encrypted(stream, f'{path}.part', path)
 
         # convert
         path = convert(path, stream)
@@ -402,7 +403,7 @@ def downloadTrack(track: Track, album=None, playlist=None, userProgress=None, pa
         Printf.success(aigpy.path.getFileName(path))
         return True, ""
     except Exception as e:
-        Printf.err("Download failed! " + track.title + ' (' + str(e) + ')')
+        Printf.err(f"Download failed! {track.title} ({str(e)})")
         return False, str(e)
 
 
@@ -410,24 +411,34 @@ def downloadVideo(video: Video, album=None, playlist=None):
     msg, stream = API.getVideoStreamUrl(video.id, CONF.videoQuality)
     Printf.video(video, stream)
     if not aigpy.string.isNull(msg):
-        Printf.err(video.title + "." + msg)
+        Printf.err(f"{video.title}.{msg}")
         return False, msg
     path = getVideoPath(CONF, video, album, playlist)
 
-    logging.info("[DL Video] name=" + aigpy.path.getFileName(path) + "\nurl=" + stream.m3u8Url)
+    logging.info(
+        f"[DL Video] name={aigpy.path.getFileName(path)}"
+        + "\nurl="
+        + stream.m3u8Url
+    )
+
     # dl = m3u8dl.M3u8Download(stream.m3u8Url, video.title, path)
     # check = dl.start()
     # msg = ''
-    
+
     m3u8content = requests.get(stream.m3u8Url).content
     if m3u8content is None:
-        Printf.err(video.title + ' get m3u8 content failed.')
+        Printf.err(f'{video.title} get m3u8 content failed.')
         return False, "Get m3u8 content failed"
 
     urls = aigpy.m3u8.parseTsUrls(m3u8content)
     if len(urls) <= 0:
-        Printf.err(video.title + ' parse ts urls failed.')
-        logging.info("[DL Video] title=" + video.title + "\m3u8Content=" + str(m3u8content))
+        Printf.err(f'{video.title} parse ts urls failed.')
+        logging.info(
+            f"[DL Video] title={video.title}"
+            + "\m3u8Content="
+            + str(m3u8content)
+        )
+
         return False, 'Parse ts urls failed.'
 
     check, msg = aigpy.m3u8.downloadByTsUrls(urls, path)
@@ -454,12 +465,11 @@ def displayTime(seconds, granularity=2):
     )
 
     for name, count in intervals:
-        value = seconds // count
-        if value:
+        if value := seconds // count:
             seconds -= value * count
             if value == 1:
                 name = name.rstrip('s')
-            result.append("{} {}".format(value, name))
+            result.append(f"{value} {name}")
     return ', '.join(result[:granularity])
 
 def loginByConfig():
@@ -500,23 +510,20 @@ def loginByWeb():
                 time.sleep(API.key.authCheckInterval + 1)
                 continue
             return False
-        if check:
-            Printf.success(LANG.MSG_VALID_ACCESSTOKEN.format(displayTime(int(API.key.expiresIn))))
-            TOKEN.userid = API.key.userId
-            TOKEN.countryCode = API.key.countryCode
-            TOKEN.accessToken = API.key.accessToken
-            TOKEN.refreshToken = API.key.refreshToken
-            TOKEN.expiresAfter = time.time() + int(API.key.expiresIn)
-            TokenSettings.save(TOKEN)
-            return True
-        
+        Printf.success(LANG.MSG_VALID_ACCESSTOKEN.format(displayTime(int(API.key.expiresIn))))
+        TOKEN.userid = API.key.userId
+        TOKEN.countryCode = API.key.countryCode
+        TOKEN.accessToken = API.key.accessToken
+        TOKEN.refreshToken = API.key.refreshToken
+        TOKEN.expiresAfter = time.time() + int(API.key.expiresIn)
+        TokenSettings.save(TOKEN)
+        return True
+
     Printf.err(LANG.AUTH_TIMEOUT)
     return False
 
 def getArtistsNames(artists):  # : list[tidal_dl.model.Artist]
-    ret = []
-    for item in artists:
-        ret.append(item.name)
+    ret = [item.name for item in artists]
     return ','.join(ret)
 
 def getDurationString(seconds: int):

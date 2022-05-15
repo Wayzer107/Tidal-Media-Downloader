@@ -126,16 +126,20 @@ class FramelessWidget(QWidget):
     def mouseMoveEvent(self, e: QMouseEvent):
         if not self.enableMove:
             return
-        if Qt.LeftButton & e.buttons():
-            if self.__clickInValidMoveWidget__() and self.clickPos:
-                self.move(e.pos() + self.pos() - self.clickPos)
+        if (
+            Qt.LeftButton & e.buttons()
+            and self.__clickInValidMoveWidget__()
+            and self.clickPos
+        ):
+            self.move(e.pos() + self.pos() - self.clickPos)
 
     def mouseDoubleClickEvent(self, e: QMouseEvent):
         if self.maxBtn.isHidden():
             return
-        if Qt.LeftButton & e.buttons():
-            if self.__clickInValidMoveWidget__(e.x(), e.y()):
-                self.__showMaxWindows__()
+        if Qt.LeftButton & e.buttons() and self.__clickInValidMoveWidget__(
+            e.x(), e.y()
+        ):
+            self.__showMaxWindows__()
 
     def getGrid(self):
         return self.contentGrid

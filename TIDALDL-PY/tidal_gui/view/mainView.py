@@ -39,9 +39,7 @@ class MainView(FramelessWidget):
         self.setWindowButton(True, True, True)
 
     def __initPages__(self):
-        self._pages = []
-        for index in range(0, PageType.Max):
-            self._pages.append(None)
+        self._pages = [None for _ in range(PageType.Max)]
 
     def __initView__(self):
         leftTab = self.__initLeftTab__()
@@ -98,7 +96,7 @@ class MainView(FramelessWidget):
         return self._contentLayout
 
     def showPage(self, pageType: PageType = PageType.Search):
-        for index in range(0, PageType.Max):
+        for index in range(PageType.Max):
             if index == pageType:
                 self._pages[index].show()
             else:

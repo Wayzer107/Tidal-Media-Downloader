@@ -80,7 +80,7 @@ class LoginView(FramelessWidget):
         self._icon = Label('')
         self._icon.setStyleSheet("QLabel{background-color:rgb(0,0,0);}")
 
-        self._icon.setPixmap(QPixmap(getResourcePath() + "/svg/V.svg"))
+        self._icon.setPixmap(QPixmap(f"{getResourcePath()}/svg/V.svg"))
         self._icon.setAlignment(Qt.AlignCenter)
 
         self._iconLabel = Label('', LabelStyle.LogoBottom)
@@ -130,9 +130,12 @@ class LoginView(FramelessWidget):
         return self._enableProxyCheck.isChecked()
 
     def getProxyInfo(self) -> dict:
-        infos = {'host': self._proxyHostEdit.text(), 'port': self._proxyPortEdit.text(),
-                 'username': self._proxyUserEdit.text(), 'password': self._proxyPwdEdit.text()}
-        return infos
+        return {
+            'host': self._proxyHostEdit.text(),
+            'port': self._proxyPortEdit.text(),
+            'username': self._proxyUserEdit.text(),
+            'password': self._proxyPwdEdit.text(),
+        }
 
     def connectConfirmButton(self, func):
         self._confirmBtn.clicked.connect(func)

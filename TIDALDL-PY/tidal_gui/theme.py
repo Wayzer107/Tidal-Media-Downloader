@@ -44,7 +44,7 @@ def __parseParamsList__(content: str) -> dict:
 def __parseQss__(content: str, params: dict) -> str:
     content = aigpy.string.getSub(content, "/* #QSS_START  */")
     for key in params:
-        content = content.replace("var(--" + key + ")", params[key])
+        content = content.replace(f"var(--{key})", params[key])
 
     content = content.replace("$RESOURCE_PATH$", _RESOURCE_PATH)
     return content
@@ -53,8 +53,7 @@ def __parseQss__(content: str, params: dict) -> str:
 def __getQss__(filePath: str) -> str:
     content = aigpy.file.getContent(filePath)
     params = __parseParamsList__(content)
-    qss = __parseQss__(content, params)
-    return qss
+    return __parseQss__(content, params)
 
 
 def getResourcePath():
@@ -62,5 +61,5 @@ def getResourcePath():
 
 
 def getThemeQssContent(style: ThemeStyle = ThemeStyle.Default):
-    name = "theme" + style.name + ".qss"
-    return __getQss__(_RESOURCE_PATH + '/' + name)
+    name = f"theme{style.name}.qss"
+    return __getQss__(f'{_RESOURCE_PATH}/{name}')

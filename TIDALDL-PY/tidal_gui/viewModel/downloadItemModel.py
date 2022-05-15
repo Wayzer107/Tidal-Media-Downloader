@@ -44,7 +44,7 @@ class Progress(UserProgress):
 
     def __toMBStr__(self, num):
         size = aigpy.memory.convert(num, aigpy.memory.Unit.BYTE, aigpy.memory.Unit.MB)
-        return str(round(size, 2)) + ' MB'
+        return f'{str(round(size, 2))} MB'
 
     def updateCurNum(self):
         per = self.curNum * 100 / self.maxNum
@@ -93,10 +93,10 @@ class DownloadItemModel(ViewModel):
 
     def __setStatus__(self, status: DownloadStatus, desc: str = ''):
         self.status = status
-        if desc == '':
+        if not desc:
             self.view.setAction(status.name)
         else:
-            self.view.setAction(status.name + '-' + desc)
+            self.view.setAction(f'{status.name}-{desc}')
         if status in _endStatus_:
             self.SIGNAL_END.emit(status)
         

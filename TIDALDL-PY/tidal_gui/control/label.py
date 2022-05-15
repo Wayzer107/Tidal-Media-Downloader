@@ -17,4 +17,4 @@ class Label(QLabel):
     def __init__(self, text: str = "", style: LabelStyle = LabelStyle.Default):
         super(Label, self).__init__()
         self.setText(text)
-        self.setObjectName(style.name + "Label")
+        self.setObjectName(f"{style.name}Label")

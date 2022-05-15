@@ -41,7 +41,7 @@ class SearchView(QWidget):
         grid.addLayout(self.__initTail__(), Qt.AlignBottom)
 
     def __initHead__(self):
-        self._searchEdit = LineEdit(iconUrl=getResourcePath() + "/svg/search2.svg")
+        self._searchEdit = LineEdit(iconUrl=f"{getResourcePath()}/svg/search2.svg")
         self._searchErrLabel = Label('', LabelStyle.SearchErr)
         self._searchErrLabel.hide()
         layout = QVBoxLayout()
@@ -112,7 +112,7 @@ class SearchView(QWidget):
         endIndex = self._rowCount - 1
         columnNum = self._table[stype].columnCount()
         while fromIndex <= endIndex:
-            for colIdx in range(0, columnNum):
+            for colIdx in range(columnNum):
                 self._table[stype].addItem(fromIndex, colIdx, '')
             fromIndex += 1
 
@@ -177,13 +177,14 @@ class SearchView(QWidget):
 
     def setSearchErrmsg(self, text: str):
         self._searchErrLabel.setText(text)
-        if text != '':
-            self._searchErrLabel.show()
-        else:
+        if not text:
             self._searchErrLabel.hide()
 
+        else:
+            self._searchErrLabel.show()
+
     def setPageIndex(self, index, sum):
-        self._pageIndexEdit.setText(str(index) + '/' + str(sum))
+        self._pageIndexEdit.setText(f'{str(index)}/{str(sum)}')
 
     def getPageIndex(self) -> (int, int):
         nums = self._pageIndexEdit.text().split('/')

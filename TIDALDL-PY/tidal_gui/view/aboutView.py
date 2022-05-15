@@ -29,17 +29,26 @@ class AboutView(QWidget):
         grid.addLayout(self.__initContent__(), 0, 1)
 
     def __initLogo__(self):
-        path = getResourcePath() + "/svg/V.svg"
+        path = f"{getResourcePath()}/svg/V.svg"
         self._logo = QLabel()
         self._logo.setPixmap(QPixmap(path))
         return self._logo
 
     def __initButton__(self):
-        path = getResourcePath() + "/svg/"
+        path = f"{getResourcePath()}/svg/"
 
-        self._feedbackBtn = PushButton('Feedback', ButtonStyle.Default, iconUrl=path + 'github.svg')
-        self._buymeacoffeeBtn = PushButton('Buymeacoffee', ButtonStyle.Info, iconUrl=path + 'buymeacoffee.svg')
-        self._paypalBtn = PushButton('Paypal', ButtonStyle.Primary, iconUrl=path + 'paypal.svg')
+        self._feedbackBtn = PushButton(
+            'Feedback', ButtonStyle.Default, iconUrl=f'{path}github.svg'
+        )
+
+        self._buymeacoffeeBtn = PushButton(
+            'Buymeacoffee', ButtonStyle.Info, iconUrl=f'{path}buymeacoffee.svg'
+        )
+
+        self._paypalBtn = PushButton(
+            'Paypal', ButtonStyle.Primary, iconUrl=f'{path}paypal.svg'
+        )
+
 
         layout = QHBoxLayout()
         layout.addWidget(self._feedbackBtn)
@@ -65,10 +74,10 @@ class AboutView(QWidget):
         self._titleLabel.setText(text)
 
     def setAuthor(self, text: str):
-        self._authorLabel.setText('MADE WITH ♥ BY ' + text)
+        self._authorLabel.setText(f'MADE WITH ♥ BY {text}')
 
     def setVersion(self, text: str):
-        self._versionLabel.setText('VERSION ' + text)
+        self._versionLabel.setText(f'VERSION {text}')
 
     def setLastVersion(self, text: str):
-        self._lastVersionLabel.setText('LAST-VERSION ' + text)
+        self._lastVersionLabel.setText(f'LAST-VERSION {text}')
