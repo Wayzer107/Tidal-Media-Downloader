@@ -19,15 +19,13 @@ from tidal_dl.enums import AudioQuality, VideoQuality
 
 def __encode__(string):
     sw = bytes(string, 'utf-8')
-    st = base64.b64encode(sw)
-    return st
+    return base64.b64encode(sw)
 
 
 def __decode__(string):
     try:
         sr = base64.b64decode(string)
-        st = sr.decode()
-        return st
+        return sr.decode()
     except:
         return string
 
@@ -44,7 +42,7 @@ def getSettingsPath():
 
 
 def getLogPath():
-    return getSettingsPath() + '/.tidal-dl.log'
+    return f'{getSettingsPath()}/.tidal-dl.log'
 
 
 class TokenSettings(ModelBase):
@@ -77,7 +75,7 @@ class TokenSettings(ModelBase):
 
     @staticmethod
     def __getFilePath__():
-        return getSettingsPath() + '/.tidal-dl.token.json'
+        return f'{getSettingsPath()}/.tidal-dl.token.json'
 
 
 class Settings(ModelBase):
@@ -155,18 +153,18 @@ class Settings(ModelBase):
 
     @staticmethod
     def getAudioQuality(value):
-        for item in AudioQuality:
-            if item.name == value:
-                return item
-        return AudioQuality.Normal
+        return next(
+            (item for item in AudioQuality if item.name == value),
+            AudioQuality.Normal,
+        )
 
     @staticmethod
     def getVideoQuality(value):
-        for item in VideoQuality:
-            if item.name == value:
-                return item
-        return VideoQuality.P360
+        return next(
+            (item for item in VideoQuality if item.name == value),
+            VideoQuality.P360,
+        )
 
     @staticmethod
     def __getFilePath__():
-        return getSettingsPath() + '/.tidal-dl.json'
+        return f'{getSettingsPath()}/.tidal-dl.json'

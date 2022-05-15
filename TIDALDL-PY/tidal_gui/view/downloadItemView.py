@@ -80,7 +80,6 @@ class DownloadItemView(QWidget):
 
     def setProgress(self, value):
         self._progress.setValue(value)
-        pass
 
     def setSize(self, curSize: str, totalSize: str):
         self._sizeLabel.setText(f'{curSize} / {totalSize}')

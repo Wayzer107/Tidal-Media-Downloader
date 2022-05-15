@@ -51,10 +51,16 @@ class TaskView(QWidget):
         self._listTab = ListWidget(ListWidgetStyle.TaskTab)
         self._listTab.setIconSize(QSize(20, 20))
 
-        iconPath = getResourcePath() + "/svg/taskTab/"
-        self._listTab.addIConTextItem(iconPath + 'download.svg', TaskStatus.Download.name)
-        self._listTab.addIConTextItem(iconPath + 'complete.svg', TaskStatus.Complete.name)
-        self._listTab.addIConTextItem(iconPath + 'error.svg', TaskStatus.Error.name)
+        iconPath = f"{getResourcePath()}/svg/taskTab/"
+        self._listTab.addIConTextItem(
+            f'{iconPath}download.svg', TaskStatus.Download.name
+        )
+
+        self._listTab.addIConTextItem(
+            f'{iconPath}complete.svg', TaskStatus.Complete.name
+        )
+
+        self._listTab.addIConTextItem(f'{iconPath}error.svg', TaskStatus.Error.name)
 
         self._listTab.itemClicked.connect(self.__tabItemChanged__)
 

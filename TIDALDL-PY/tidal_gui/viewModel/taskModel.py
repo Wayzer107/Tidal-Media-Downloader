@@ -22,9 +22,9 @@ class TaskModel(ViewModel):
         super(TaskModel, self).__init__()
         self.view = TaskView()
 
-        self._listMap = {}
-        for item in map(lambda typeItem: typeItem.name, TaskStatus):
-            self._listMap[item] = []
+        self._listMap = {
+            item: [] for item in map(lambda typeItem: typeItem.name, TaskStatus)
+        }
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self.__checkTaskStatus__)

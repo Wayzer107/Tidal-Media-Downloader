@@ -116,8 +116,7 @@ class Printf(object):
     @staticmethod
     def enter(string):
         aigpy.cmd.colorPrint(string, aigpy.cmd.TextColor.Yellow, None)
-        ret = input("")
-        return ret
+        return input("")
 
     @staticmethod
     def enterPath(string, errmsg, retWord='0', default=""):
@@ -127,7 +126,7 @@ class Printf(object):
             if ret == retWord:
                 return default
             elif ret == "":
-                print(aigpy.cmd.red(LANG.PRINT_ERR + " ") + errmsg)
+                print(aigpy.cmd.red(f"{LANG.PRINT_ERR} ") + errmsg)
             else:
                 break
         return ret
@@ -138,7 +137,7 @@ class Printf(object):
         while True:
             ret = aigpy.cmd.inputLimit(aigpy.cmd.yellow(string), limit)
             if ret is None:
-                print(aigpy.cmd.red(LANG.PRINT_ERR + " ") + errmsg)
+                print(aigpy.cmd.red(f"{LANG.PRINT_ERR} ") + errmsg)
             else:
                 break
         return ret
@@ -155,18 +154,18 @@ class Printf(object):
     @staticmethod
     def err(string):
         LANG = getLang()
-        print(aigpy.cmd.red(LANG.PRINT_ERR + " ") + string)
+        print(aigpy.cmd.red(f"{LANG.PRINT_ERR} ") + string)
         logging.error(string)
 
     @staticmethod
     def info(string):
         LANG = getLang()
-        print(aigpy.cmd.blue(LANG.PRINT_INFO + " ") + string)
+        print(aigpy.cmd.blue(f"{LANG.PRINT_INFO} ") + string)
 
     @staticmethod
     def success(string):
         LANG = getLang()
-        print(aigpy.cmd.green(LANG.PRINT_SUCCESS + " ") + string)
+        print(aigpy.cmd.green(f"{LANG.PRINT_SUCCESS} ") + string)
 
     @staticmethod
     def album(data: Album):
@@ -182,11 +181,36 @@ class Printf(object):
         tb.add_row([LANG.MODEL_VERSION, data.version])
         tb.add_row([LANG.MODEL_EXPLICIT, data.explicit])
         print(tb)
-        logging.info("====album " + str(data.id) + "====\n" +
-                     "title:" + data.title + "\n" +
-                     "track num:" + str(data.numberOfTracks) + "\n" +
-                     "video num:" + str(data.numberOfVideos) + "\n" +
-                     "==================================")
+        logging.info(
+            (
+                (
+                    (
+                        (
+                            (
+                                (
+                                    (
+                                        (
+                                            f"====album {str(data.id)}"
+                                            + "====\n"
+                                            + "title:"
+                                        )
+                                        + data.title
+                                    )
+                                    + "\n"
+                                )
+                                + "track num:"
+                            )
+                            + str(data.numberOfTracks)
+                            + "\n"
+                        )
+                        + "video num:"
+                    )
+                    + str(data.numberOfVideos)
+                    + "\n"
+                )
+                + "=================================="
+            )
+        )
 
     @staticmethod
     def track(data: Track, stream: StreamUrl = None):
@@ -204,10 +228,25 @@ class Printf(object):
             tb.add_row(["Get-Q", str(stream.soundQuality)])
             tb.add_row(["Get-Codec", str(stream.codec)])
         print(tb)
-        logging.info("====track " + str(data.id) + "====\n" + \
-                     "title:" + data.title + "\n" + \
-                     "version:" + str(data.version) + "\n" + \
-                     "==================================")
+        logging.info(
+            (
+                (
+                    (
+                        (
+                            (
+                                (f"====track {str(data.id)}" + "====\n" + "title:")
+                                + data.title
+                            )
+                            + "\n"
+                        )
+                        + "version:"
+                    )
+                    + str(data.version)
+                    + "\n"
+                )
+                + "=================================="
+            )
+        )
 
     @staticmethod
     def video(data: Video, stream: VideoStreamUrl = None):
@@ -225,10 +264,25 @@ class Printf(object):
             tb.add_row(["Get-Codec", str(stream.codec)])
 
         print(tb)
-        logging.info("====video " + str(data.id) + "====\n" +
-                     "title:" + data.title + "\n" +
-                     "version:" + str(data.version) + "\n" +
-                     "==================================")
+        logging.info(
+            (
+                (
+                    (
+                        (
+                            (
+                                (f"====video {str(data.id)}" + "====\n" + "title:")
+                                + data.title
+                            )
+                            + "\n"
+                        )
+                        + "version:"
+                    )
+                    + str(data.version)
+                    + "\n"
+                )
+                + "=================================="
+            )
+        )
 
     @staticmethod
     def artist(data: Artist, num):
@@ -241,10 +295,25 @@ class Printf(object):
         tb.add_row(["Number of albums", num])
         tb.add_row([LANG.MODEL_TYPE, str(data.type)])
         print(tb)
-        logging.info("====artist " + str(data.id) + "====\n" +
-                     "name:" + data.name + "\n" +
-                     "album num:" + str(num) + "\n" +
-                     "==================================")
+        logging.info(
+            (
+                (
+                    (
+                        (
+                            (
+                                (f"====artist {str(data.id)}" + "====\n" + "name:")
+                                + data.name
+                            )
+                            + "\n"
+                        )
+                        + "album num:"
+                    )
+                    + str(num)
+                    + "\n"
+                )
+                + "=================================="
+            )
+        )
 
     @staticmethod
     def playlist(data):
@@ -256,11 +325,36 @@ class Printf(object):
         tb.add_row([LANG.MODEL_TRACK_NUMBER, data.numberOfTracks])
         tb.add_row([LANG.MODEL_VIDEO_NUMBER, data.numberOfVideos])
         print(tb)
-        logging.info("====playlist " + str(data.uuid) + "====\n" +
-                     "title:" + data.title + "\n" +
-                     "track num:" + str(data.numberOfTracks) + "\n" +
-                     "video num:" + str(data.numberOfVideos) + "\n" +
-                     "==================================")
+        logging.info(
+            (
+                (
+                    (
+                        (
+                            (
+                                (
+                                    (
+                                        (
+                                            f"====playlist {str(data.uuid)}"
+                                            + "====\n"
+                                            + "title:"
+                                        )
+                                        + data.title
+                                    )
+                                    + "\n"
+                                )
+                                + "track num:"
+                            )
+                            + str(data.numberOfTracks)
+                            + "\n"
+                        )
+                        + "video num:"
+                    )
+                    + str(data.numberOfVideos)
+                    + "\n"
+                )
+                + "=================================="
+            )
+        )
 
     @staticmethod
     def mix(data):
@@ -272,10 +366,23 @@ class Printf(object):
         tb.add_row([LANG.MODEL_TRACK_NUMBER, len(data.tracks)])
         tb.add_row([LANG.MODEL_VIDEO_NUMBER, len(data.videos)])
         print(tb)
-        logging.info("====Mix " + str(data.id) + "====\n" +
-                     "track num:" + str(len(data.tracks)) + "\n" +
-                     "video num:" + str(len(data.videos)) + "\n" +
-                     "==================================")
+        logging.info(
+            (
+                (
+                    (
+                        (
+                            (f"====Mix {str(data.id)}" + "====\n" + "track num:")
+                            + str(len(data.tracks))
+                            + "\n"
+                        )
+                        + "video num:"
+                    )
+                    + str(len(data.videos))
+                    + "\n"
+                )
+                + "=================================="
+            )
+        )
 
     @staticmethod
     def apikeys(items):

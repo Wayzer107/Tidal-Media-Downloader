@@ -22,7 +22,7 @@ class PushButton(QPushButton):
                  iconUrl=''):
         super(PushButton, self).__init__()
         self.setText(text)
-        self.setObjectName(style.name + "PushButton")
+        self.setObjectName(f"{style.name}PushButton")
 
         if width > 0:
             self.setFixedWidth(width)

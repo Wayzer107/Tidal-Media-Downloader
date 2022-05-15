@@ -33,14 +33,14 @@ class TableWidget(QTableWidget):
             item = QTableWidgetItem(name)
 
             align = Qt.AlignLeft | Qt.AlignVCenter
-            if name == '#' or name == ' ':
+            if name in ['#', ' ']:
                 align = Qt.AlignCenter
 
             self.columnAligns.append(align)
             item.setTextAlignment(align)
             self.setHorizontalHeaderItem(index, item)
 
-        for index in range(0, rowCount):
+        for index in range(rowCount):
             self.setRowHeight(index, 50)
 
         self.setShowGrid(False)
@@ -56,7 +56,7 @@ class TableWidget(QTableWidget):
     def changeRowCount(self, rows: int):
         if rows != self.rowCount():
             self.setRowCount(rows)
-            for index in range(0, rows):
+            for index in range(rows):
                 self.setRowHeight(index, 50)
 
     def addItem(self, rowIdx: int, colIdx: int, text):

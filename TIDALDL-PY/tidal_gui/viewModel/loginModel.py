@@ -28,14 +28,14 @@ class LoginModel(ViewModel):
         self.SIGNAL_REFRESH_VIEW.connect(self.__refresh__)
 
     def __refresh__(self, stype: str, text: str):
-        if stype == "userCode":
+        if stype == "showMsg":
+            self.view.hideEnterView()
+            self.view.setMsg(text)
+        elif stype == "userCode":
             self.view.setDeviceCode(text)
             self.view.enableConfirmButton(True)
             self.view.setMsg(' ')
             self.view.showEnterView()
-        elif stype == "showMsg":
-            self.view.hideEnterView()
-            self.view.setMsg(text)
 
     def login(self, useConfig=True):
         self.SIGNAL_REFRESH_VIEW.emit('showMsg', "LOGIN...")

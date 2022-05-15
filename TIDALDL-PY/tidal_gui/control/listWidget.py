@@ -17,7 +17,7 @@ from tidal_gui.style import ListWidgetStyle
 class ListWidget(QListWidget):
     def __init__(self, style: ListWidgetStyle = ListWidgetStyle.Default):
         super(ListWidget, self).__init__()
-        self.setObjectName(style.name + "ListWidget")
+        self.setObjectName(f"{style.name}ListWidget")
 
     def addIConTextItem(self, iconUrl: str, text: str):
         self.addItem(QListWidgetItem(QIcon(iconUrl), text))

@@ -106,8 +106,7 @@ class M3u8Download:
                 if "EXT-X-KEY" in line and "URI=" in line:
                     if os.path.exists(os.path.join(self._file_path, 'key')):
                         continue
-                    key = self.download_key(line, 5)
-                    if key:
+                    if key := self.download_key(line, 5):
                         new_m3u8_str += f'{key}\n'
                         continue
                 new_m3u8_str += f'{line}\n'
@@ -122,7 +121,7 @@ class M3u8Download:
                     self._ts_url_list.append(self._url.rsplit("/", 1)[0] + '/' + line)
                 new_m3u8_str += (os.path.join(self._file_path, str(next(ts))) + '\n')
         self._ts_sum = next(ts)
-        with open(self._file_path + '.m3u8', "wb") as f:
+        with open(f'{self._file_path}.m3u8', "wb") as f:
             if platform.system() == 'Windows':
                 f.write(new_m3u8_str.encode('gbk'))
             else:
@@ -194,7 +193,7 @@ class M3u8Download:
         for item in file:
             os.remove(os.path.join(self._file_path, item))
         os.removedirs(self._file_path)
-        os.remove(self._file_path + '.m3u8')
+        os.remove(f'{self._file_path}.m3u8')
 
 
 
